@@ -1,12 +1,9 @@
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.metrics import classification_report, confusion_matrix
-from scipy.stats import mannwhitneyu, wilcoxon
-from scipy.stats import mannwhitneyu
 
 def weather_recommendation(weather_condition):
     if 'Fog' in weather_condition:
@@ -17,7 +14,7 @@ def weather_recommendation(weather_condition):
         return "Saran: Perhatikan kondisi cuaca dan sesuaikan aktivitas Anda."
 
 # Load data into DataFrame
-data = pd.read_excel("/content/drive/MyDrive/SVM/NewDataWeather.xlsx")
+data = pd.read_excel(r'/content/gdrive/My Drive/Tugas/Book8.xlsx')
 kolom = ['Temp_C', 'Dew Point Temp_C', 'Rel Hum_%', 'Wind Speed_km/h', 'Visibility_km', 'Pressure_kPa', 'Weather']
 
 df = pd.DataFrame(data)
@@ -25,119 +22,69 @@ df = pd.DataFrame(data)
 # Menghapus baris yang mengandung NaN
 df_cleaned = df.dropna()
 
-X = df_cleaned.drop('Weather', axis=1)
-
-print("\nX variable\n\n", X.head())
-
-y = df_cleaned['Weather']
-
-print("\ny variable\n\n", y.head())
-print("\n")
-
-# Count plot
-print("Count plots")
-sns.countplot(x=df_cleaned['Weather'], data=df_cleaned, palette='hls')
-plt.title("Weather count")
-plt.show()
-print("\n")
-
-# Hypothesis Testing
-# Non parametric test (Mann-Whitney test)
-print("\n")
-print("Hypothesis Testing\n")
-print("Mann-Whitney Test results")
-data1 = df_cleaned['Weather']
-data2 = df_cleaned['Temp_C']
-
-# Mengganti variabel kategorikal 'Weather' menjadi nilai numerik
-df_cleaned['Weather_numeric'] = df_cleaned['Weather'].astype('category').cat.codes
-# Melakukan uji Mann-Whitney U
-stat, p = mannwhitneyu(df_cleaned['Weather_numeric'], df_cleaned['Temp_C'])
-print("Statistics:", stat, "\n", "p-value:", p)
-alpha = 0.05
-if p > alpha:
-    print('Same distribution (fail to reject H0)')
-else:
-    print('Different distribution (reject H0 and accepting H1)')
-
-# Wilcoxon test
-print("\n")
-print("Wilcoxon Test Results")
-data1 = df_cleaned['Wind Speed_km/h']
-data2 = df_cleaned['Visibility_km']
-stat1, p1 = wilcoxon(data1, data2)
-print("Statistics:", stat1, "\n", "p-value:", p1)
-# interpret the results
-alpha = 0.05
-if p1 > alpha:
-    print('Same distribution (fail to reject H0)')
-else:
-    print('Different distribution (reject H0 and accepting H1)')
-print("\n")
-
-# Split the data train and test
-print("Support Vector Machine Results\n")
 # Split the data into train and validation sets (80:20)
-X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_valid, y_train, y_valid = train_test_split(df_cleaned.drop('Weather', axis=1), df_cleaned['Weather'], test_size=0.2, random_state=0)
 
-# Support Vector Machine classifier
-svclassifier = SVC(kernel='linear')
+# Load the standard scaler used during training
+scaler = StandardScaler().fit(X_train)
 
-# Fit the model on the training data
-svclassifier.fit(X_train, y_train)
+# Transform the training and validation data
+X_train_scaled = scaler.transform(X_train)
+X_valid_scaled = scaler.transform(X_valid)
 
-# Predict on the validation set
-y_pred_valid = svclassifier.predict(X_valid)
+# Hyperparameter tuning using GridSearchCV
+param_grid = {'C': [1, 10, 100], 'gamma': [0.1, 1, 10], 'kernel': ['rbf']}
+grid = GridSearchCV(SVC(class_weight='balanced'), param_grid, refit=True, verbose=2, cv=3)
+grid.fit(X_train_scaled, y_train)
 
-# Evaluating the algorithm on the validation set
-print("Validation Set Results\n")
-print(classification_report(y_valid, y_pred_valid, zero_division=1))
-print(confusion_matrix(y_valid, y_pred_valid))
+# Print the best parameters found by GridSearchCV
+print("Best Parameters:", grid.best_params_)
+
+# Predict on the validation set using the best parameters
+y_pred_valid_tuned = grid.predict(X_valid_scaled)
+
+# Evaluating the algorithm on the validation set after tuning
+print("\nValidation Set Results after Tuning\n")
+print(classification_report(y_valid, y_pred_valid_tuned, zero_division=1))
+print(confusion_matrix(y_valid, y_pred_valid_tuned))
 print("\n")
-accuracy_valid = metrics.accuracy_score(y_valid, y_pred_valid)
-print("Accuracy score on validation set:", round(accuracy_valid, 2))
+accuracy_valid_tuned = metrics.accuracy_score(y_valid, y_pred_valid_tuned)
+print("Accuracy score on validation set after tuning:", round(accuracy_valid_tuned, 2))
 
+# User input
+user_input = {
+    'Temp_C': float(input("Masukkan nilai Temp_C: ")),
+    'Dew Point Temp_C': float(input("Masukkan nilai Dew Point Temp_C: ")),
+    'Rel Hum_%': float(input("Masukkan nilai Rel Hum_%: ")),
+    'Wind Speed_km/h': float(input("Masukkan nilai Wind Speed_km/h: ")),
+    'Visibility_km': float(input("Masukkan nilai Visibility_km: ")),
+    'Pressure_kPa': float(input("Masukkan nilai Pressure_kPa: "))
+}
 
+# Create DataFrame from user input
+user_input_data = pd.DataFrame([user_input])
 
-# print("masukan harus berupa boolean")
-# # User input
-# user_input = {
-#     'Temp_C': float(input("Masukkan nilai Temp_C: ")),
-#     'Dew Point Temp_C': float(input("Masukkan nilai Dew Point Temp_C: ")),
-#     'Rel Hum_%': float(input("Masukkan nilai Rel Hum_%: ")),
-#     'Wind Speed_km/h': float(input("Masukkan nilai Wind Speed_km/h: ")),
-#     'Visibility_km': float(input("Masukkan nilai Visibility_km: ")),
-#     'Pressure_kPa': float(input("Masukkan nilai Pressure_kPa: "))
-# }
+# Adjust column names
+user_input_data = user_input_data.rename(columns={'Pressure_kPa': 'Press_kPa'})
 
-# # Buat DataFrame dari input pengguna
-# user_input_data = pd.DataFrame([user_input])
+# Ensure all feature names are in the user input DataFrame
+missing_features = set(X_train.columns) - set(user_input_data.columns)
+for feature in missing_features:
+    user_input_data[feature] = 0
 
+# Convert column names to string
+user_input_data.columns = user_input_data.columns.astype(str)
 
-# # Dapatkan nama fitur yang digunakan pada saat pelatihan
-# trained_feature_names = svclassifier.support_
+# Normalize the user input data using the same scaler
+user_input_scaled = scaler.transform(user_input_data)
 
+# Predict weather based on user input
+predicted_weather = grid.predict(user_input_scaled)
 
-# # Sesuaikan nama fitur input pengguna dengan nama fitur yang digunakan pada saat pelatihan
-# user_input_data = user_input_data.rename(columns={'Pressure_kPa': 'Pressure_kPa'})
+# Print predicted weather
+print("\nPredicted Weather:", predicted_weather[0])
 
-# # Pastikan semua nama fitur ada di DataFrame input pengguna
-# missing_features = set(trained_feature_names) - set(user_input_data.columns)
-
-# # Inisialisasi user_input_data dengan nilai 0 untuk fitur yang tidak ada pada saat pelatihan
-# for feature in missing_features:
-#     user_input_data[feature] = 0
-
-# # Konversi nama fitur menjadi string
-# user_input_data.columns = user_input_data.columns.astype(str)
-
-# # Prediksi cuaca berdasarkan input pengguna
-# predicted_weather = svclassifier.predict(user_input_data)
-
-
-# # Print predicted weather
-# print("\nPredicted Weather:", predicted_weather[0])
-
-# # Berikan rekomendasi cuaca
-# recommendation = weather_recommendation(predicted_weather)
-# print(recommendation)
+# Provide weather recommendation
+recommendation = weather_recommendation(predicted_weather)
+print(recommendation)
+??
