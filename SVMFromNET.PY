@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.metrics import classification_report, confusion_matrix
 
-// saran
+#saran
 def weather_recommendation(weather_condition):
     if 'Fog' in weather_condition:
         return "Hindari berkendara saat kabut tebal, gunakan lampu kabut, dan jaga jarak aman antara kendaraan."
