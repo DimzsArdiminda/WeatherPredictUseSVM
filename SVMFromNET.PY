@@ -5,11 +5,26 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.metrics import classification_report, confusion_matrix
 
+// saran
 def weather_recommendation(weather_condition):
     if 'Fog' in weather_condition:
-        return "Saran: Gunakan lampu kabut saat berkendara dan perhatikan kecepatan Anda."
-    elif 'Freezing Drizzle' in weather_condition:
-        return "Saran: Hindari berkendara jika tidak diperlukan. Jika berkendara, gunakan peralatan keselamatan musim dingin."
+        return "Hindari berkendara saat kabut tebal, gunakan lampu kabut, dan jaga jarak aman antara kendaraan."
+    elif 'Freezing' in weather_condition:
+        return "Pastikan kendaraan Anda dilengkapi dengan ban salju atau rantai ban salju, dan hindari berkendara di jalan yang licin."
+    elif 'Drizzle' in weather_condition:
+        return "Pastikan Anda membawa payung atau jas hujan saat bepergian."
+    elif 'Mostly Cloudy' in weather_condition or 'Cloudy' in weather_condition:
+        return "Pastikan Anda membawa jaket atau pakaian hangat saat bepergian."
+    elif 'Rain' in weather_condition or 'Rain Showers' in weather_condition:
+        return "Pastikan Anda membawa payung atau jas hujan saat bepergian."
+    elif 'Mainly Clear' in weather_condition or 'Clear' in weather_condition:
+        return "Pastikan Anda membawa kacamata hitam dan tabir surya saat bepergian."
+    elif 'Freezing Rain' in weather_condition:
+        return "Hindari berkendara di jalan yang licin, pastikan kendaraan Anda dilengkapi dengan ban salju atau rantai ban salju, dan gunakan lampu kabut saat berkendara."
+    elif 'Snow Showers' in weather_condition or 'Snow' in weather_condition:
+        return "Pastikan kendaraan Anda dilengkapi dengan ban salju atau rantai ban salju, dan hindari berkendara di jalan yang licin."
+    elif 'Thunderstorms' in weather_condition:
+        return "Hindari berada di luar ruangan saat petir dan pastikan Anda berada di tempat yang aman."
     else:
         return "Saran: Perhatikan kondisi cuaca dan sesuaikan aktivitas Anda."
 
@@ -87,4 +102,4 @@ print("\nPredicted Weather:", predicted_weather[0])
 # Provide weather recommendation
 recommendation = weather_recommendation(predicted_weather)
 print(recommendation)
-??
+
