@@ -7,7 +7,7 @@ git clone https://github.com/DimzsArdiminda/WeatherPredictUseSVM.git
 
 run in your command prompt 
 ```
-python SVMfromNet.py
+python SVMfromNET.py
 ```
 
 
