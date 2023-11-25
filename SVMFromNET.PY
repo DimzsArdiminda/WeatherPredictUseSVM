@@ -29,7 +29,7 @@ def weather_recommendation(weather_condition):
         return "Saran: Perhatikan kondisi cuaca dan sesuaikan aktivitas Anda."
 
 # Load data into DataFrame
-data = pd.read_excel(r'/content/gdrive/My Drive/Tugas/Book8.xlsx')
+data = pd.read_excel(r'change/path/data.xlsx')
 kolom = ['Temp_C', 'Dew Point Temp_C', 'Rel Hum_%', 'Wind Speed_km/h', 'Visibility_km', 'Pressure_kPa', 'Weather']
 
 df = pd.DataFrame(data)
@@ -37,6 +37,7 @@ df = pd.DataFrame(data)
 # Menghapus baris yang mengandung NaN
 df_cleaned = df.dropna()
 
+print("Support Vector Machine Results\n")
 # Split the data into train and validation sets (80:20)
 X_train, X_valid, y_train, y_valid = train_test_split(df_cleaned.drop('Weather', axis=1), df_cleaned['Weather'], test_size=0.2, random_state=0)
 
@@ -63,8 +64,16 @@ print("\nValidation Set Results after Tuning\n")
 print(classification_report(y_valid, y_pred_valid_tuned, zero_division=1))
 print(confusion_matrix(y_valid, y_pred_valid_tuned))
 print("\n")
-accuracy_valid_tuned = metrics.accuracy_score(y_valid, y_pred_valid_tuned)
-print("Accuracy score on validation set after tuning:", round(accuracy_valid_tuned, 2))
+
+# skor akurasi
+accuracy_valid = metrics.accuracy_score(y_valid, y_pred_valid_tuned)
+print("Accuracy score on validation set:", round(accuracy_valid, 2))
+
+# Skor akurasi pada data pelatihan
+y_pred_train_tuned = grid.predict(X_train_scaled)
+accuracy_train_tuned = metrics.accuracy_score(y_train, y_pred_train_tuned)
+print("Accuracy score on training set after tuning:", round(accuracy_train_tuned, 2))
+
 
 # User input
 user_input = {
@@ -102,4 +111,3 @@ print("\nPredicted Weather:", predicted_weather[0])
 # Provide weather recommendation
 recommendation = weather_recommendation(predicted_weather)
 print(recommendation)
-
