@@ -14,5 +14,5 @@ python SVMFromNET.py
 !! attention !!
 in path code use NewDataWeather.xlsx to calculation 
 
-and also i give a data raw if you wanna change calculation for normalization data,
+and also we give a data raw if you wanna change calculation for normalization data,
 cuz we have use z - score calculation for that 
